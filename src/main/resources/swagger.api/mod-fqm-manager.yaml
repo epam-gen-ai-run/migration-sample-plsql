@@ -1,0 +1,193 @@
+openapi: 3.0.0
+info:
+  title: mod-fqm-manager API
+  version: v1
+  description: mod-fqm-manager API
+
+servers:
+  - url: https://falcon.ci.folio.org/fqm/
+
+paths:
+  /entity-types:
+    get:
+      operationId: getEntityTypeSummary
+      tags:
+        - entityTypes
+      description: Get names for a list of entity type ids.
+      parameters:
+        - $ref: '#/components/parameters/entity-type-ids'
+        - $ref: '#/components/parameters/include-inaccessible'
+        - $ref: '#/components/parameters/include-all'
+      responses:
+        '200':
+          description: 'Entity type summaries'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entityTypeSummaries'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /query/purge:
+    post:
+      operationId: deleteOldQueries
+      tags:
+        - purgeQuery
+      description: Deletes all queries that are older than the configured duration.
+      responses:
+        '200':
+          description: 'IDs of deleted queries.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/purgedQueries'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entity-types/materialized-views/refresh:
+    post:
+      operationId: refreshData
+      tags:
+        - materializedViews
+      description: Refresh all materialized views and similar data for a tenant.
+      responses:
+        '200':
+          description: 'Data refreshed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dataRefreshResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /fqm/version:
+    get:
+      operationId: getFqmVersion
+      tags:
+        - fqmVersion
+      description: Get version of the fqm.
+      responses:
+        '200':
+          description: 'Version of the fqm'
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /fqm/migrate:
+    post:
+      summary: fqm migrate request
+      operationId: fqmMigrate
+      tags:
+        - fqmVersion
+      requestBody:
+        description: 'Request for FQM version submitted successfully'
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Mapped to schema in folio-query-tool-metadata
+              type: object
+              format: FqmMigrateRequest
+      responses:
+        '200':
+          description: 'FQM version updated successfully'
+          content:
+            application/json:
+              schema:
+                description: Mapped to schemas in folio-query-tool-metadata
+                type: object
+                format: FqmMigrateResponse
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+components:
+  parameters:
+    entity-type-id:
+      name: entity-type-id
+      in: path
+      required: true
+      description: Name of the derived table
+      schema:
+        type: string
+        format: UUID
+    entity-type-ids:
+      name: ids
+      in: query
+      required: false
+      description: List of entity type ids
+      schema:
+        type: array
+        items:
+          type: string
+          format: UUID
+    include-inaccessible:
+      name: includeInaccessible
+      in: query
+      required: false
+      description: Include inaccessible entity types in the result
+      schema:
+        type: boolean
+    include-all:
+      name: includeAll
+      in: query
+      required: false
+      description: Include all the entity types regardless of being private
+      schema:
+        type: boolean
+  schemas:
+    errorResponse:
+      $ref: schemas/errors.json
+    contents:
+      type: array
+      items:
+        $ref: '#/components/schemas/contentItem'
+    contentItem:
+      type: object
+      additionalProperties:
+        type: object
+    entityTypeSummaries:
+      $ref: schemas/EntityTypeSummaries.json
+    purgedQueries:
+      $ref: schemas/PurgedQueries.json
+    dataRefreshResponse:
+      type: object
+      properties:
+        successfulRefresh:
+          type: array
+          items:
+            type: string
+        failedRefresh:
+          type: array
+          items:
+            type: string
+
+  responses:
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+              - message: Request is invalid
+                code: invalid.request
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+              - message: Unexpected error
+                code: unexpected.error
+          schema:
+            $ref: "#/components/schemas/errorResponse"

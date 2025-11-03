@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Entity Type Summary",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Entity type id",
+      "type": "string",
+      "format": "UUID"
+    },
+    "label": {
+      "description": "Entity type label",
+      "type": "string"
+    },
+    "isCustom": {
+      "description": "If this entity type is a custom entity type",
+      "type": "boolean"
+    },
+    "crossTenantQueriesEnabled": {
+      "description": "Indicates if this entity type supports cross-tenant queries",
+      "type": "boolean",
+      "default": false
+    },
+    "missingPermissions": {
+      "description": "List of missing permissions",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "createdAt": {
+      "description": "[custom only] The creation timestamp of the entity type",
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "description": "[custom only] The last update timestamp of the entity type",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["id", "label", "isCustom"]
+}

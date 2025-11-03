@@ -1,0 +1,70 @@
+{
+  id: '6b08439b-4f8e-4468-8046-ea620f5cfb74',
+  name: 'composite_instances',
+  private: false,
+  crossTenantQueriesEnabled: true,
+  sources: [
+    {
+      alias: 'instance',
+      type: 'entity-type',
+      targetId: '8fc4a9d2-7ccf-4233-afb8-796911839862', // simple_instance
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 10,
+    },
+    {
+      alias: 'inst_stat',
+      type: 'entity-type',
+      targetId: '9c239bfd-198f-4013-bbc4-4551c0cbdeaa', // simple_instance_status
+      targetField: 'id',
+      sourceField: 'instance.status_id',
+      order: 20,
+      // essentialOnly: true,
+    },
+    {
+      alias: 'instance_type',
+      type: 'entity-type',
+      targetId: 'af44e2e0-12e0-4eec-b80d-49feb33a866c', // simple_instance_type
+      targetField: 'id',
+      sourceField: 'instance.instance_type_id',
+      essentialOnly: true,
+      order: 30,
+    },
+    {
+      alias: 'date_type',
+      type: 'entity-type',
+      targetId: '2d4bd468-720e-42b2-af41-8f4a9d7cb335', // simple_instance_date_type
+      targetField: 'id',
+      sourceField: 'instance.instance_date_type_id',
+      essentialOnly: true,
+      order: 40,
+    },
+    {
+      alias: 'created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'instance.created_by',
+      essentialOnly: true,
+      order: 50
+    },
+    {
+      alias: 'updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'instance.updated_by',
+      essentialOnly: true,
+      order: 60
+    }
+  ],
+  defaultSort: [
+    {
+      columnName: '"instance.inst".id',
+      direction: 'ASC',
+    },
+  ],
+  additionalEcsConditions: [
+    '"left"(lower("instance.inst".jsonb ->> \'source\'::text), 600) != \'consortium-folio\' AND "left"(lower("instance.inst".jsonb ->> \'source\'::text), 600) != \'consortium-marc\'',
+  ],
+}

@@ -1,0 +1,85 @@
+{
+  id: '8418e512-feac-4a6a-a56d-9006aab31e33',
+  name: 'composite_holdings_record',
+  private: false,
+  crossTenantQueriesEnabled: true,
+  sources: [
+    {
+      alias: 'holdings',
+      type: 'entity-type',
+      targetId: '30a5cfad-1868-4f46-86b9-a6ef67e2d9bf', // simple_holdings_records
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 10
+    },
+    {
+      alias: 'effective_location',
+      type: 'entity-type',
+      targetId: '74ddf1a6-19e0-4d63-baf0-cd2da9a46ca4', // simple_locations,
+      targetField: 'id',
+      sourceField: 'holdings.effective_location_id',
+      essentialOnly: true,
+      order: 30
+    },
+    {
+      alias: 'effective_library',
+      type: 'entity-type',
+      targetId: '32f58888-1a7b-4840-98f8-cc69ca93fc67', // simple_loclibrary,
+      targetField: 'id',
+      sourceField: 'effective_location.library_id',
+      essentialOnly: true,
+      order: 20
+    },
+    {
+      alias: 'permanent_location',
+      type: 'entity-type',
+      targetId: '74ddf1a6-19e0-4d63-baf0-cd2da9a46ca4', // simple_locations
+      targetField: 'id',
+      sourceField: 'holdings.permanent_location_id',
+      essentialOnly: true,
+      order: 40
+    },
+    {
+      alias: 'temporary_location',
+      type: 'entity-type',
+      targetId: '74ddf1a6-19e0-4d63-baf0-cd2da9a46ca4', // simple_locations,
+      targetField: 'id',
+      sourceField: 'holdings.temporary_location_id',
+      essentialOnly: true,
+      order: 50
+    },
+    {
+      alias: 'instance',
+      type: 'entity-type',
+      targetId: '8fc4a9d2-7ccf-4233-afb8-796911839862', // simple_instances
+      targetField: 'id',
+      sourceField: 'holdings.instance_id',
+      essentialOnly: true,
+      order: 60
+    },
+    {
+      alias: 'created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'holdings.created_by',
+      essentialOnly: true,
+      order: 70
+    },
+    {
+      alias: 'updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'holdings.updated_by',
+      essentialOnly: true,
+      order: 80
+    },
+  ],
+  defaultSort: [
+    {
+      columnName: '"holdings.hrd".id',
+      direction: 'ASC',
+    },
+  ],
+}

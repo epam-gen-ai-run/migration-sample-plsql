@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:15
+    container_name: postgresql
+    environment:
+      POSTGRES_DB: demodb
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - C:\git-codemie\ai_demo_plsql2java\db\pg_data:/var/lib/postgresql/data
+      - C:\git-codemie\ai_demo_plsql2java\db\pg_tmp:/tmp

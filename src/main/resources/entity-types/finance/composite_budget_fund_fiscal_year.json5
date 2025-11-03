@@ -1,0 +1,75 @@
+{
+  id: '592f6e78-51f0-40d5-9857-5b47976afb8e',
+  name: 'composite_budget_fund_fiscal_year',
+  private: false,
+  sources: [
+    {
+      alias: 'budget',
+      type: 'entity-type',
+      targetId: '71525bf3-ea51-47c4-bb18-7ab6f07d2b42', // simple_budget
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 10,
+    },
+    {
+      alias: 'fiscal_year',
+      type: 'entity-type',
+      targetId: 'e61f988a-1d47-4b16-b8be-220a1c38ca8a', // simple_fiscal_year
+      targetField: 'id',
+      essentialOnly: true,
+      sourceField: 'budget.fiscal_year_id',
+      order: 20,
+    },
+    {
+      alias: 'fund',
+      type: 'entity-type',
+      targetId: 'a9afda34-3f10-48e4-8cb3-38ff9e5c9eb9', // composite_fund
+      targetField: 'fund.id',
+      essentialOnly: true,
+      sourceField: 'budget.fund_id',
+      order: 30,
+    },
+    {
+      alias: 'budget_created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'budget.created_by_user_id',
+      essentialOnly: true,
+      order: 40,
+    },
+    {
+      alias: 'budget_updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'budget.updated_by_user_id',
+      essentialOnly: true,
+      order: 45,
+    },
+    {
+      alias: 'fiscal_year_created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'fiscal_year.created_by_user_id',
+      essentialOnly: true,
+      order: 50,
+    },
+    {
+      alias: 'fiscal_year_updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'fiscal_year.updated_by_user_id',
+      essentialOnly: true,
+      order: 55,
+    },
+  ],
+  defaultSort: [
+    {
+      columnName: '"budget.budget".id',
+      direction: 'ASC',
+    },
+  ],
+}

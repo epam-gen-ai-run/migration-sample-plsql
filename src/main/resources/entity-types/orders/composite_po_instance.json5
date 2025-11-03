@@ -1,0 +1,93 @@
+{
+  id: '7a14b9b7-701b-4f81-bdb3-c4dee4121fdf',
+  name: 'composite_po_instance',
+  private: false,
+  requiredPermissions: [
+    // This inherited from simple_config_data, but is also included here because of the added columns here that also retrieve config data
+    'configuration.entries.collection.get',
+  ],
+  sources: [
+    {
+      alias: 'pol',
+      type: 'entity-type',
+      targetId: '58148257-bfb0-4687-8c42-d2833d772f3e', // purchase_order_line
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 10
+    },
+    {
+      alias: 'purchase_order',
+      type: 'entity-type',
+      targetId: '48de4796-11a2-44e9-abb7-01e84af87234', // simple_purchase_order
+      targetField: 'id',
+      sourceField: 'pol.purchase_order_id',
+      essentialOnly: true,
+      order: 30,
+    },
+    //    {
+    //      alias: 'location',
+    //      type: 'entity-type',
+    //      targetId: '74ddf1a6-19e0-4d63-baf0-cd2da9a46ca4', // simple_locations
+    //      essentialOnly: true,
+    //      join: {
+    //        type: 'LEFT JOIN',
+    //        joinTo: 'pol.pol',
+    //        condition: "jsonb_extract_path_text(:that.jsonb, 'locations', 'locationId')::uuid = :this.id",
+    //      },
+    //    },
+    {
+      alias: 'instance',
+      type: 'entity-type',
+      targetId: '8fc4a9d2-7ccf-4233-afb8-796911839862', // simple_instance
+      targetField: 'id',
+      sourceField: 'pol.instance_id',
+      essentialOnly: true,
+      order: 20
+    },
+    {
+      alias: 'created_by_user',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'purchase_order.created_by',
+      essentialOnly: true,
+      order: 40
+    },
+    {
+      alias: 'updated_by_user',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'purchase_order.updated_by',
+      essentialOnly: true,
+      order: 41
+    },
+    {
+      alias: 'pol_created_by_user',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'pol.created_by',
+      essentialOnly: true,
+      order: 42
+    },
+    {
+      alias: 'pol_updated_by_user',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'pol.updated_by',
+      essentialOnly: true,
+      order: 43
+    },
+    {
+      alias: 'organization',
+      type: 'entity-type',
+      targetId: 'b5ffa2e9-8080-471a-8003-a8c5a1274503', // simple_organization
+      targetField: 'id',
+      sourceField: 'purchase_order.vendor',
+      essentialOnly: true,
+      order: 50
+    },
+  ],
+}

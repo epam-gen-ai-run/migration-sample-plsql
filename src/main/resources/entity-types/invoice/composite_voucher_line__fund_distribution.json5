@@ -1,0 +1,130 @@
+{
+  id: 'b4c76df5-d730-4ede-8a98-ab04c5e222ab',
+  name: 'composite_voucher_line__fund_distribution',
+  private: true,
+  sources: [
+    {
+      type: 'entity-type',
+      alias: 'voucher_line',
+      targetId: '5db5fbd8-0dfa-4e87-a7fc-a3568e83effb', // simple_voucher_line
+      useIdColumns: true,
+    },
+    {
+      type: 'db',
+      alias: 'fund_distribution',
+      // this won't work for parents of this entity type...we need a better solution for this to keep the alias properly resolved.
+      target: 'jsonb_array_elements("voucher_line.voucher_lines".jsonb -> \'fundDistributions\')',
+      join: {
+        type: 'CROSS JOIN LATERAL',
+        joinTo: 'voucher_line.voucher_lines',
+      },
+    },
+  ],
+  columns: [
+    {
+      name: 'fund_id',
+      dataType: {
+        dataType: 'rangedUUIDType',
+      },
+      isIdColumn: true,
+      sourceAlias: 'fund_distribution',
+      valueGetter: "(:sourceAlias.jsonb->>'fundId')::uuid",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'fundId')::uuid",
+      valueFunction: 'lower(:value)::uuid',
+      joinsTo: [
+        {
+          targetId: '4c63c7f5-1a28-4394-b401-98c02c31492d', // simple_fund
+          targetField: 'id',
+          type: 'equality-simple', // this valueGetter is already a uuid, so no need to cast again
+          direction: 'left',
+        },
+      ],
+    },
+    {
+      name: 'invoice_line_id',
+      dataType: {
+        dataType: 'rangedUUIDType',
+      },
+      isIdColumn: true,
+      sourceAlias: 'fund_distribution',
+      valueGetter: "(:sourceAlias.jsonb->>'invoiceLineId')::UUID",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'invoiceLineId')::UUID",
+      valueFunction: 'lower(:value)::UUID',
+      joinsTo: [
+        {
+          targetId: '1373f063-8b86-48cc-832d-68b4d0dd44fc', // simple_invoice_line
+          targetField: 'id',
+          type: 'equality-cast-uuid',
+          direction: 'left',
+        },
+      ],
+    },
+    {
+      name: 'code',
+      sourceAlias: 'fund_distribution',
+      dataType: {
+        dataType: 'rangedUUIDType',
+      },
+      valueGetter: ":sourceAlias.jsonb->>'code'",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'code')",
+      valueFunction: 'lower(:value)',
+    },
+    {
+      name: 'value',
+      sourceAlias: 'fund_distribution',
+      dataType: {
+        dataType: 'numberType',
+      },
+      valueGetter: "(:sourceAlias.jsonb->>'value')::float",
+      valueFunction: '(:value)::float',
+    },
+    {
+      name: 'encumbrance',
+      sourceAlias: 'fund_distribution',
+      dataType: {
+        dataType: 'rangedUUIDType',
+      },
+      valueGetter: "(:sourceAlias.jsonb->>'encumbrance')",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'encumbrance')",
+      valueFunction: 'lower(:value)',
+    },
+    {
+      name: 'distribution_type',
+      sourceAlias: 'fund_distribution',
+      dataType: {
+        dataType: 'stringType',
+      },
+      valueGetter: ":sourceAlias.jsonb->>'distributionType'",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'distributionType')",
+      valueFunction: 'lower(:value)',
+    },
+    {
+      name: 'expense_class_id',
+      dataType: {
+        dataType: 'rangedUUIDType',
+      },
+      sourceAlias: 'fund_distribution',
+      valueGetter: "(:sourceAlias.jsonb->>'expenseClassId')",
+      filterValueGetter: "lower(:sourceAlias.jsonb->>'expenseClassId')",
+      valueFunction: 'lower(:value)',
+      joinsTo: [
+        {
+          targetId: '6e11cd39-a34e-4afc-90db-957dd45d139e', // simple_expense_class
+          targetField: 'id',
+          type: 'equality-cast-uuid',
+          direction: 'left',
+        },
+      ],
+    },
+  ],
+  defaultSort: [
+    {
+      columnName: '"voucher_line.voucher_lines".id',
+      direction: 'ASC',
+    },
+    {
+      columnName: 'fund_id',
+      direction: 'ASC',
+    },
+  ],
+}

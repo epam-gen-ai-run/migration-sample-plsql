@@ -1,0 +1,27 @@
+server:
+  port: 8081
+mod-fqm-manager:
+  permissions-cache-timeout-seconds: 60
+  entity-type-cache-timeout-seconds: 3600
+  zombie-query-max-wait-seconds: 0
+spring:
+  application:
+    name: mod-fqm-manager
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: true
+  banner:
+    location: classpath:/banner.txt
+folio:
+  tenant:
+    validation:
+      enabled: false
+management:
+  endpoints:
+    access.default: unrestricted
+logging:
+  level:
+    org.springframework.web: debug

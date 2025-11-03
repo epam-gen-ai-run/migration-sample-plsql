@@ -1,0 +1,200 @@
+{
+  id: 'f3ccbf49-8e3e-4f5c-a60e-04ad80543a4a',
+  name: 'composite_order_invoice_analytics',
+  description: "Compound entity type that allows concurrent querying of PO/PO Line, Invoice/Invoice Line, Organization, \
+                Fund, Expense class, Fiscal Year to generate certain types of acquisitions-related reports",
+  private: false,
+  sources: [
+    {
+      alias: 'po',
+      type: 'entity-type',
+      targetId: '48de4796-11a2-44e9-abb7-01e84af87234', // simple_purchase_order
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 10,
+    },
+    {
+      alias: 'pol',
+      type: 'entity-type',
+      targetId: '58148257-bfb0-4687-8c42-d2833d772f3e', // simple_purchase_order_line
+      targetField: 'purchase_order_id',
+      sourceField: 'po.id',
+      overrideJoinDirection: "left",
+      useIdColumns: true,
+      essentialOnly: true,
+      order: 20,
+    },
+    {
+      alias: 'instance',
+      type: 'entity-type',
+      targetId: '8fc4a9d2-7ccf-4233-afb8-796911839862', // simple_instance
+      targetField: 'id',
+      sourceField: 'pol.instance_id',
+      essentialOnly: true,
+      order: 30
+    },
+    {
+      alias: 'invoice_line_fund_distribution',
+      type: 'entity-type',
+      targetId: '4999bd5f-3898-4b44-b283-e37bc9261ad8', // composite_invoice_line_fund_distribution
+      targetField: 'po_line_id',
+      sourceField: 'pol.id',
+      overrideJoinDirection: "left",
+      essentialOnly: true,
+      order: 40,
+    },
+    {
+      alias: 'invoice',
+      type: 'entity-type',
+      targetId: '4d626ce1-1880-48d2-9d4c-81667fdc5dbb', // simple_invoice
+      targetField: 'id',
+      sourceField: 'invoice_line_fund_distribution.invoice_id',
+      essentialOnly: true,
+      order: 50,
+    },
+    {
+      alias: 'organization',
+      type: 'entity-type',
+      targetId: 'b5ffa2e9-8080-471a-8003-a8c5a1274503', // simple_organization
+      targetField: 'id',
+      sourceField: 'invoice.vendor_id',
+      essentialOnly: true,
+      order: 60
+    },
+    {
+      alias: 'fiscal_year',
+      type: 'entity-type',
+      targetId: 'e61f988a-1d47-4b16-b8be-220a1c38ca8a', // simple_fiscal_year
+      targetField: 'id',
+      sourceField: 'invoice.fiscal_year_id',
+      essentialOnly: true,
+      order: 70
+    },
+    {
+      alias: 'fund',
+      type: 'entity-type',
+      targetId: '4c63c7f5-1a28-4394-b401-98c02c31492d', // simple_fund
+      useIdColumns: true,
+      essentialOnly: true,
+      targetField: 'id',
+      sourceField: 'invoice_line_fund_distribution.fund_id',
+      order: 80,
+    },
+    {
+      alias: 'fund_type',
+      type: 'entity-type',
+      targetId: 'b7e43005-3e3a-4633-82b9-a96fcd7d8c47', // simple_fund_type
+      essentialOnly: true,
+      targetField: 'id',
+      sourceField: 'fund.fund_type_id',
+      order: 90
+    },
+    {
+      alias: 'expense_class',
+      type: 'entity-type',
+      targetId: '6e11cd39-a34e-4afc-90db-957dd45d139e', // simple_expense_class
+      useIdColumns: true,
+      essentialOnly: true,
+      targetField: 'id',
+      sourceField: 'invoice_line_fund_distribution.expense_class_id',
+      order: 100
+    },
+    {
+      alias: 'po_created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'po.created_by',
+      essentialOnly: true,
+      order: 110
+    },
+    {
+      alias: 'po_updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'po.updated_by',
+      essentialOnly: true,
+      order: 115
+    },
+    {
+      alias: 'pol_created_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'pol.created_by',
+      essentialOnly: true,
+      order: 120
+    },
+    {
+      alias: 'pol_updated_by',
+      type: 'entity-type',
+      targetId: 'f2615ea6-450b-425d-804d-6a495afd9308', // simple_FOLIO_user
+      targetField: 'id',
+      sourceField: 'pol.updated_by',
+      essentialOnly: true,
+      order: 125
+    }
+  ],
+  columns: [
+    {
+      name: 'all_fiscal_years_ids',
+      sourceAlias: 'po.po',
+      dataType: {
+        dataType: 'jsonbArrayType',
+        itemDataType: {
+          dataType: 'rangedUUIDType',
+        },
+      },
+      isIdColumn: false,
+      queryable: false,
+      essential: true,
+      visibleByDefault: false,
+      hidden: true,
+      valueGetter: "COALESCE(( \
+                      SELECT jsonb_agg(DISTINCT (invoice.jsonb->>'fiscalYearId')::uuid) FROM src_invoice_invoices invoice \
+                      WHERE (invoice.jsonb->'poNumbers')::jsonb ?? (:sourceAlias.jsonb->>'poNumber') \
+                    ), '[]'::jsonb)",
+      filterValueGetter: "COALESCE(( \
+                            SELECT jsonb_agg(DISTINCT (invoice.jsonb->>'fiscalYearId')::uuid) FROM src_invoice_invoices invoice \
+                            WHERE (invoice.jsonb->'poNumbers')::jsonb ?? (:sourceAlias.jsonb->>'poNumber') \
+                          ), '[]'::jsonb)",
+    },
+    {
+      name: 'all_fiscal_years',
+      sourceAlias: 'po.po',
+      dataType: {
+        dataType: 'jsonbArrayType',
+        itemDataType: {
+          dataType: 'stringType',
+        },
+      },
+      idColumnName: 'all_fiscal_years_ids',
+      essential: true,
+      queryable: true,
+      visibleByDefault: false,
+      valueGetter: "COALESCE(( \
+                      SELECT jsonb_agg(DISTINCT fy.jsonb ->> 'name') FILTER (WHERE (fy.jsonb ->> 'name') IS NOT NULL) \
+                      FROM src_invoice_invoices invoice \
+                      JOIN src_finance_fiscal_year fy ON invoice.jsonb->>'fiscalYearId' = fy.id::text \
+                      WHERE (invoice.jsonb->'poNumbers')::jsonb ?? (:sourceAlias.jsonb->>'poNumber') \
+                    ), '[]'::jsonb)",
+      filterValueGetter: "COALESCE(( \
+                            SELECT jsonb_agg(DISTINCT fy.jsonb ->> 'name') FILTER (WHERE (fy.jsonb ->> 'name') IS NOT NULL) \
+                            FROM src_invoice_invoices invoice \
+                            JOIN src_finance_fiscal_year fy ON invoice.jsonb->>'fiscalYearId' = fy.id::text \
+                            WHERE (invoice.jsonb->'poNumbers')::jsonb ?? (:sourceAlias.jsonb->>'poNumber') \
+                          ), '[]'::jsonb)",
+      valueFunction: "lower(:value)",
+      source: {
+        entityTypeId: 'e61f988a-1d47-4b16-b8be-220a1c38ca8a',
+        columnName: 'name'
+      },
+      valueSourceApi: {
+        path: 'finance/fiscal-years',
+        valueJsonPath: '$.fiscalYears.*.id',
+        labelJsonPath: '$.fiscalYears.*.name'
+      }
+    }
+  ]
+}
